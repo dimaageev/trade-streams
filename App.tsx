@@ -1,118 +1,76 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React, {useState, createContext} from 'react';
+import TabNavigator from './src/navigation/Tab';
+import {Text, TextInput, Button as RNButton, ViewStyle} from 'react-native';
+import Button from './src/components/Button';
+import Modal from 'react-native-modal';
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+export const PriceLimitContext = createContext({
+  priceLimit: {max: 0, min: 0},
+  resetPriceLimit: () => {},
+});
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+function App() {
+  const [formVisible, setFormVisible] = useState(false);
+  const [maxPrice, setMaxPrice] = useState(0);
+  const [minPrice, setMinPrice] = useState(0);
+  const [priceLimit, setPriceLimit] = useState<{max: number; min: number}>({
+    max: 0,
+    min: 0,
+  });
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+  const showForm = () => {
+    setFormVisible(true);
+  };
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
-
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  const resetPriceLimit = () => {
+    setPriceLimit({max: 0, min: 0});
   };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <PriceLimitContext.Provider value={{priceLimit, resetPriceLimit}}>
+      <Button onPress={showForm} />
+      <TabNavigator />
+      <Modal isVisible={formVisible} style={$modal}>
+        <RNButton
+          title="Close"
+          onPress={() => setFormVisible(false)}
+          color="red"
+        />
+        <Text>Max amount</Text>
+        <TextInput
+          style={$input}
+          inputMode="numeric"
+          onChangeText={val => setMaxPrice(Number(val))}
+        />
+        <Text>Min Amount</Text>
+        <TextInput
+          style={$input}
+          inputMode="numeric"
+          onChangeText={val => setMinPrice(Number(val))}
+        />
+        <RNButton
+          title="Save"
+          onPress={() => {
+            setPriceLimit({max: maxPrice, min: minPrice});
+            setFormVisible(false);
+          }}
+        />
+      </Modal>
+    </PriceLimitContext.Provider>
   );
 }
 
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
-
 export default App;
+
+const $modal: ViewStyle = {
+  width: '100%',
+  backgroundColor: '#fff',
+  alignSelf: 'center',
+};
+
+const $input: ViewStyle = {
+  padding: 10,
+  borderBottomWidth: 1,
+  borderBottomColor: '#ddd',
+  marginBottom: 20,
+};
