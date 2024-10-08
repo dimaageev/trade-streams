@@ -50,9 +50,9 @@ const useOperations = () => {
         const now = new Date();
         const oneHourAgo = now.getTime() - 60 * 60 * 1000;
 
-        return [trade, ...prevTrades]
-          .filter(t => t.timestamp.getTime() >= oneHourAgo)
-          .slice(0, 10);
+        return [trade, ...prevTrades].filter(
+          t => t.timestamp.getTime() >= oneHourAgo,
+        );
       });
     };
 
